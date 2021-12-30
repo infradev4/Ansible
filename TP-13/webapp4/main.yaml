@@ -1,0 +1,13 @@
+---
+- name: "Install nginx and git with include task"
+  hosts: prod
+  become: true
+  
+  tasks:
+
+    - name: Include task Install nginx
+      include_tasks: /home/ubuntu/webapp4/install.yaml
+      when: ansible_distribution == "Ubuntu"  
+      loop:
+        - nginx
+        - git

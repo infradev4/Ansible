@@ -1,0 +1,16 @@
+---
+- name: "Install nginx"
+  apt:
+    name: "{{ item }}"
+    state: present
+
+- name: "start nginx"
+  service:
+    name: nginx
+    enabled: yes
+    state: started
+
+- name: create index file for nginx
+  copy:
+    dest: /var/www/html/index.html
+    content: "Bonjour Oussama"

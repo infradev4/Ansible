@@ -54,7 +54,7 @@ ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
       apt:
         name: "{{ item }}"
         state: present
-      when: ansible_distribution == "Ubuntu" and env == "worker01"
+      when: ansible_distribution == "Ubuntu" and env == "worker01" # ou inventory_hostname = "worker01"
       loop:
         - nginx
         - git

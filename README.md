@@ -1168,11 +1168,35 @@ worker01 | SUCCESS => {
 
 ```
 
+# module copy
+long
+utiliser git
+
+# Generic OS package manager
+
+## ansible.builtin.package
+
+Ce module gère les packages sur une cible sans spécifier de module de gestion de packages (comme ansible.builtin.yum, ansible.builtin.apt, …). Il est pratique à utiliser dans un environnement hétérogène de machines sans avoir à créer une tâche spécifique pour chaque gestionnaire de packages. appels de package derrière le module pour le gestionnaire de packages utilisé par le système d'exploitation découvert par le module ansible.builtin.setup. Si l'installation n'a pas encore été exécutée, le package l'exécutera. Ce module agit comme un proxy pour le module de gestionnaire de packages sous-jacent. Bien que tous les arguments soient passés au module sous-jacent, tous les modules ne prennent pas en charge les mêmes arguments. Cette documentation ne couvre que l'intersection minimale des arguments de module pris en charge par tous les modules d'empaquetage. Pour les cibles Windows, utilisez plutôt le module ansible.windows.win_package.
 
 
+Examples
+- name: Install ntpdate
+  ansible.builtin.package:
+    name: ntpdate
+    state: present
 
+# This uses a variable as this changes per distribution.
+- name: Remove the apache package
+  ansible.builtin.package:
+    name: "{{ apache }}"
+    state: absent
 
-
+- name: Install the latest version of Apache and MariaDB
+  ansible.builtin.package:
+    name:
+      - httpd
+      - mariadb-server
+    state: latest
 
 
 
@@ -1186,3 +1210,223 @@ worker01 | SUCCESS => {
 
 # loop
 
+# Tags Ansible
+Tags Ansible
+Si vous avez un grand livre de jeu, il peut s’avérer utile de ne pouvoir en exécuter qu’une partie spécifique plutôt que de tout lire dans le livre. Ansible prend en charge un attribut tags: pour cette raison.
+
+Lorsque vous exécutez un livre de jeu, vous pouvez filtrer les tâches en fonction des “tags” de deux manières:
+
+Sur la ligne de commande, avec les options --tags ou --skip-tags
+Dans les paramètres de configuration Ansible, avec les options TAGS_RUN et TAGS_SKIP
+Les “tags” peuvent être appliqués à de nombreuses structures dans Ansible :
+
+tasks:
+roles:
+blocks:
+import_roles:
+import_tasks:
+Mais son utilisation la plus simple est avec des tâches individuelles.
+
+# Import et include
+
+La principale différence est:
+
+Toutes les import*déclarations sont pré-traitées au moment où les playbooks sont analysés.
+Toutes les include*instructions sont traitées telles qu’elles se sont présentées lors de l’exécution du livre de jeu.
+
+Ainsi importest statique, includeest dynamique.
+
+Utiliser import lorsque vous traitez avec des "unités" logiques. Par exemple, séparez une longue liste de tâches dans des fichiers de sous-tâche:
+
+main.yml:
+
+- import_tasks: prepare_filesystem.yml
+- import_tasks: install_prerequisites.yml
+- import_tasks: install_application.yml
+Mais vous utiliseriez includepour traiter différents flux de travail et prendre des décisions en fonction de faits rassemblés de manière dynamique:
+
+les conditions d'installation:
+
+- include_tasks: prerequisites_{{ ansible_os_family | lower }}.yml
+
+
+Les importations remplacent essentiellement la tâche par les tâches du fichier. Il n'y a pas import_taskau moment de l'exécution. Ainsi, des attributs tels que tags, et when(et très probablement d’autres attributs) sont copiés dans chaque tâche importée.
+
+includes sont bien exécutés. tagset whend’une tâche incluse s’appliquent uniquement à la tâche elle-même.
+
+Les tâches importétiquetées à partir d'un fichier importé sont exécutées si la tâche est non étiquetée. Aucune tâche n'est exécutée à partir d'un fichier inclus si la includetâche n'est pas marquée.
+
+Toutes les tâches d'un fichier importé sont exécutées si la importtâche est étiquetée. Seules les tâches balisées d'un fichier inclus sont exécutées si la includetâche est balisée.
+
+Limitations de imports:
+
+ne peut pas être utilisé avec with_*ou loopattributs
+impossible d'importer un fichier dont le nom dépend d'une variable
+Limitations de includes:
+
+--list-tags ne montre pas les tags des fichiers inclus
+--list-tasks ne montre pas les tâches des fichiers inclus
+vous ne pouvez pas utiliser notifypour déclencher un nom de gestionnaire qui provient de l'intérieur d'une inclusion dynamique
+vous ne pouvez pas utiliser --start-at-taskpour commencer l'exécution d'une tâche dans une inclusion dynamique
+
+# Comment vérifier si docker est installé - ansible - centos
+
+I'm trying to make a conditional "when" in my ansible playbook. If docker not installed, install docker. So i have a playbook, with a role with some tasks in it. And i would like to do something like
+
+when: docker != not exist
+
+or
+
+when: docker == false
+
+When i get setup, from one with docker installed i get this:
+
+"ansible_docker0": {
+            "active": true,
+            "device": "docker0",
+            "features": {
+When no docker : 
+SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    },
+    "changed": false
+
+# Clé privée
+
+si ssh établie pas besoin d'utiliser les mots de passes
+
+Il faut utilisé la commande ssh-copy-id (pensez à autoriser le mdp)
+
+/user/home/ubuntu/.ssh = emplacement clé public
+
+--private-key PRIVATE_KEY_FILE
+
+https://docs.ansible.com/ansible/latest/user_guide/connection_details.html
+
+copie clé privéee dans home/ubuntu de mon master
+
+oussama-kp-ajc.pem
+
+ chmod 400 oussama-kp-ajc.pem
+
+Configurer des clés SSH sur Linux ou Unix selon les besoins de mon projet et les fournisseurs d'hébergement cloud. 
+
+Comment configurer et indiquer à Ansible d'utiliser différentes clés ssh ? Comment configurer les informations d'identification SSH par fournisseur de services d'hébergement cloud ? 
+
+Ansible utilise SSH qui permet également aux utilisateurs et à ansbile ; pour se connecter à des serveurs distants et effectuer des tâches de gestion. Cette page montre comment déjà configurer des clés SSH pour se connecter au serveur distant à l'aide de l'outil d'automatisation informatique Ansible.
+
+ansible_ssh_pass 
+
+Le mot de passe ssh à utiliser (ne stockez jamais cette variable en texte clair ; utilisez toujours un coffre-fort. 
+Voir Variables et coffres-forts) 
+
+ansible_ssh_private_key_file 
+
+Fichier de clé privée utilisé par ssh. Utile si vous utilisez plusieurs clés et que vous ne souhaitez pas utiliser l'agent SSH.
+
+```
+all:
+  vars:
+     ansible_ssh_private_key_file: /home/ubuntu/frazer-kp-ajc1.pe
+  children:
+    ansible:
+      hosts:
+        localhost:
+          ansible_connection: local
+          ansible_user: ubuntu
+    prod:
+      vars:
+        env: production
+        ansible_user: ubuntu
+        ansible_password: ubuntu
+        ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+
+      hosts:
+        worker01:
+          ansible_host: 172.31.95.37
+          hostname: AnsibleWorker01
+
+        worker02:
+          ansible_host: 172.31.95.0
+          hostname: AnsibleWorker02
+````
+
+# Sécurisation des donnéé sensible:
+
+# Ansible-vault:
+
+
+
+
+
+# ansible configuration
+https://docs.ansible.com/ansible/latest/reference_appendices/config.html
+ordre de priorité
+
+1) variable d'environement 
+2) /home/ubuntu/projet/.ansible.cfg
+3) home/.ansible.cfg
+4) /etc/ansible/.ansible.cfg
+
+# je défini le fichier d'inventaire
+vi ansible.cfg
+
+[defaults]
+inventory= /home/ubuntu/webapp2/hosts.yaml
+
+ansible all -m ping
+
+# become a true
+
+DEFAULT_BECOME
+La description Bascule l'utilisation de l'élévation des privilèges, vous permettant de « devenir » un autre utilisateur après la connexion.
+
+Section [privilege_escalation]
+
+Key become
+
+Environment
+Variable
+ANSIBLE_BECOME
+
+vi ansible.cfg
+
+[defaults]
+inventory= /home/ubuntu/webapp2/hosts.yaml
+
+[privilege_escalation]
+become= true
+
+
+DEFAULT_ASK_VAULT_PASS
+La description 
+Cela contrôle si un playbook Ansible doit demander un mot de passe de coffre-fort.
+
+
+vi ansible.cfg
+
+[defaults]
+inventory= /home/ubuntu/webapp2/hosts.yaml
+ask_vault_pass= true
+
+[privilege_escalation]
+become= true
+
+DEFAULT_REMOTE_USER
+La description 
+
+Définit l'utilisateur de connexion pour les machines cibles Lorsqu'il est vide, il utilise la valeur par défaut du plug-in de connexion, normalement l'utilisateur en cours d'exécution d'Ansible.
+
+Section [defaults]
+
+Key remote_user
+
+vi ansible.cfg
+
+[defaults]
+inventory= /home/ubuntu/webapp2/hosts.yaml
+ask_vault_pass= true
+
+[privilege_escalation]
+become= true

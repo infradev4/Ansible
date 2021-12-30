@@ -1,0 +1,6 @@
+---
+- name: Include task Install docker
+  import_playbook: /home/ubuntu/TP_mario/docker.yaml
+
+- name: Include task Deploy container
+  import_playbook: /home/ubuntu/TP_mario/mario.yaml

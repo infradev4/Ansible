@@ -1,0 +1,18 @@
+all:
+  children:
+    ansible:
+      hosts:
+        localhost:
+          ansible_connection: local
+          ansible_user: ubuntu
+    prod:
+      vars:
+        env: production
+
+      hosts:
+        worker01:
+          ansible_host: 172.31.6.70
+          env: worker01
+
+        worker02:
+          ansible_host: 172.31.13.73

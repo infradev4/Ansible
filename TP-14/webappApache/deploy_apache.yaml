@@ -1,0 +1,6 @@
+---
+- name: Include playbook Install docker
+  import_playbook: /home/ubuntu/webappApache/docker.yaml
+
+- name: Include playbook Deploy container apache
+  import_playbook: /home/ubuntu/webappApache/apache.yaml 
