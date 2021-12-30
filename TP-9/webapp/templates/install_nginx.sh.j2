@@ -1,0 +1,8 @@
+#!/bin/bash
+{% if ansible_distribution == "Ubuntu" %}
+   sudo apt-get install {{ app }} -y
+{% elif ansible_distribution == "Centos" %}
+   sudo yum install {{ app }} -y
+{% else %}
+   echo 'Distribution pas prise en charge'
+{% endif %}

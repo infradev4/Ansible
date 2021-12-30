@@ -1,0 +1,25 @@
+---
+- name: "Install nginx and git in client with OS ubuntu and worker01 in group prod"
+  hosts: prod
+  become: true
+  
+  tasks:
+    - name: "Install nginx"
+      apt:
+        name: "{{ item }}"
+        state: present
+      when: ansible_distribution == "Ubuntu" and env == "worker01"
+      loop:
+        - nginx
+        - git
+
+    - name: "start nginx"
+      service:
+        name: nginx
+        enabled: yes
+        state: started
+
+    - name: create index file for nginx
+      copy:
+        dest: /var/www/html/index.html
+        content: "Bonjour Oussama"

@@ -1,0 +1,13 @@
+---
+- name: "Desinstall nginx and git in hosts worker02"
+  hosts: worker02
+  become: true
+
+  tasks:
+    - name: "desinstall nginx"
+      when: ansible_distribution == "Ubuntu"
+      apt:
+        name: nginx
+        state: absent
+        purge: yes
+        autoremove: yes

@@ -1,0 +1,26 @@
+---
+- name: "Install nginx"
+  hosts: prod
+  become: true
+  vars:
+    app: nginx # sudo apt-get install {{ app }} -y
+ 
+  tasks:
+    - name: "Copy Script files"
+      template:
+        src: /home/ubuntu/webapp/templates/install_nginx.sh.j2
+        dest: /home/ubuntu/install_nginx.sh
+
+    - name: "Install nginx"
+      command: "sh /home/ubuntu/install_nginx.sh"
+
+    - name: "start nginx"
+      service:
+        name: nginx
+        enabled: yes
+        state: started
+
+    - name: create index file for nginx
+      copy:
+        dest: /var/www/html/index.html
+        content: "Bonjour Oussama"
