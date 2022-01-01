@@ -2,6 +2,8 @@
 
 Action à l'aide de commandes impérative ou avec des play books.
 
+Ansible utilise une syntaxe écrite en YAML. Aucune compétence en programmation particulière n'est nécessaire pour créer les playbooks d'Ansible.
+
 Play books importés dans d'autres play books.
 
 Configuration automatique des applications sur une ferme de serveurs
@@ -12,20 +14,12 @@ Il peut être couplé avec Terraform
 
 Il intervient sur des intras existants. Terraform crée des infras
 
-# Liste des avantages d'Ansible :
-```yaml
-Gratuit: Ansible est un outil open source.
+Ansible vous fournit des centaines de modules prêts à l'emploi pour gérer vos tâches
 
-Simple : Ansible utilise une syntaxe écrite en YAML. Aucune compétence en programmation particulière n'est nécessaire pour créer les playbooks d'Ansible. Il est également simple à installer.
+# Glossaire
 
-Puissant: Ansible vous permet de modéliser des workflows très complexes.
+ansible_host
 
-Flexible: Ansible vous fournit des centaines de modules prêts à l'emploi pour gérer vos tâches, quel que soit l'endroit où ils sont déployés. Vous pouvez réutiliser le même playbook sur un parc de machines Red Hat, Ubuntu ou autres.
-
-Agentless : vous n'avez pas besoin d'installer d'autres logiciels ou d'ouvrir des ports de pare-feu supplémentaires sur les systèmes clients que vous souhaitez automatiser. Ansible réduit encore l'effort requis pour que votre équipe commence à automatiser immédiatement.
-
-Efficace: Parce que vous n'avez pas besoin d'installer de logiciel supplémentaire, il y a plus de place pour les ressources d'application sur votre serveur.
-```
 
 # Que peut faire Ansible?
 Ansible peut être utilisé de différentes manières. 
@@ -106,16 +100,6 @@ Ansible fonctionne en se connectant aux noeuds à gérer et en leur envoyant des
     https://docs.ansible.com/ansible/latest/collections/index_module.html
     https://github.com/ansible/ansible-modules-core/
 
-
-• On en distingue pour différents contextes :
-
-    • Cloud computing
-    • Virtualisation
-    • Provisionning
-    • Configuration Management
-    • Networking
-    • Conteurisation etc
-
 ## Liste des modules:
 
 * Setup module : 
@@ -167,7 +151,7 @@ Les Plugins apportent des fonctionnalités complémentaires à Ansible.
 # Exécution des tâches
 Une tâche est l’appel à un module Ansible. Le module Ansible contient localement tout le code utile à l’exécution. Il est donc important de disposer du code à jour des modules.
 
-## Le mode Ad Hoc
+## Le mode Ad Hoc ou Commandes Imperative
 Le mode Ad-Hoc permet l’exécution de tâches “ad-hoc” parallèles.
 
 Dès qu’une instance est disponible, on peut lui parler immédiatement, sans aucune configuration supplémentaire, ici sur une instance Red Hat :
@@ -393,11 +377,7 @@ Installer `sshpass` sur la machine à partir de laquelle vous tentez un connexio
 `sudo apt-get install sshpass -y`
 
 
-# Commandes Imperative ou AD-HOC
 
-Les modules sont des programmes qu'Ansible pousse depuis une machine de contrôle vers tous les hôtes distants. Les modules sont exécutés à l'aide de playbooks ou depuis la cli Ansible (AD-HOC), et ils contrôlent des éléments tels que les services, les packages, les fichiers et bien plus.
-
-Dans notre exemple, on utilisera le module ping qui envoie une requête ping à tous les nœuds de votre inventaire.
 
 # Utilisateur par défaut
 Afin de ne pas avoir à définir l'utilisateur qui va executer la commande sur mon poste client (ou slave) je peux ajouter à mon fichier d'inventaire les lignes ansible_user et ansible_password.
@@ -414,144 +394,8 @@ worker01 ansible_host=172.31.6.70 ansible_user=ubuntu ansible_password=ubuntu an
 worker02 ansible_host=172.31.13.73 ansible_user=ubuntu ansible_password=ubuntu ansible_ssh_common_args='-o StrictHostKeyChecking=no'
 ```
 
-# TP-2: Utilisation des commandes ad-hoc
-• Créez un fichier d’inventaire hosts
-
-`vi hosts`
-```ruby
-worker01 ansible_host=172.31.6.70 ansible_user=ubuntu ansible_password=ubuntu ansible_ssh_common_args='-o StrictHostKeyChecking=no'
-worker02 ansible_host=172.31.13.73 ansible_user=ubuntu ansible_password=ubuntu ansible_ssh_common_args='-o StrictHostKeyChecking=no'
-```
-
-• Utilisez une commande ad-hoc pour tentez de pinger le client ansible
-
-`ansible -i hosts all -m ping`
-```yaml
-172.31.13.73 | SUCCESS => {
-    "ansible_facts": {
-        "discovered_interpreter_python": "/usr/bin/python3"
-    },
-    "changed": false,
-    "ping": "pong"
-}
-172.31.6.70 | SUCCESS => {
-    "ansible_facts": {
-        "discovered_interpreter_python": "/usr/bin/python3"
-    },
-    "changed": false,
-    "ping": "pong"
-}
-```
-• Utilisez une commande ad-hoc pour créer un fichier `frazer.txt` et le contenu `Bonjour AJC` sur les clients
-
-`ansible -i hosts all -m copy -a "dest=/home/ubuntu/frazer.txt content='Bonjour AJC'"`
-```yaml
-172.31.13.73 | CHANGED => {
-    "ansible_facts": {
-        "discovered_interpreter_python": "/usr/bin/python3"
-    },
-    "changed": true,
-    "checksum": "bd4e885dc612bea43f0c73e740f842dbfd9f6d44",
-    "dest": "/home/ubuntu/frazer.txt",
-    "gid": 1000,
-    "group": "ubuntu",
-    "md5sum": "5f0b5298069e49a35981f83527bacf6f",
-    "mode": "0664",
-    "owner": "ubuntu",
-    "size": 11,
-    "src": "/home/ubuntu/.ansible/tmp/ansible-tmp-1640689087.43161-44553-175033144969312/source",
-    "state": "file",
-    "uid": 1000
-}
-172.31.6.70 | CHANGED => {
-    "ansible_facts": {
-        "discovered_interpreter_python": "/usr/bin/python3"
-    },
-    "changed": true,
-    "checksum": "bd4e885dc612bea43f0c73e740f842dbfd9f6d44",
-    "dest": "/home/ubuntu/frazer.txt",
-    "gid": 1000,
-    "group": "ubuntu",
-    "md5sum": "5f0b5298069e49a35981f83527bacf6f",
-    "mode": "0664",
-    "owner": "ubuntu",
-    "size": 11,
-    "src": "/home/ubuntu/.ansible/tmp/ansible-tmp-1640689087.4153397-44551-254516027147879/source",
-    "state": "file",
-    "uid": 1000
-}
-```
-
-• Testez l’effet du module « setup » sur votre inventaire
 
 
-
-
-
-# TP-3: Utilisation des commandes ad-hoc (Modules)
-• Créez un fichier d’inventaire `inventaire` pour vos différentes machines
-
-`vi inventaire`
-```ruby
-worker01 ansible_host=172.31.6.70 ansible_user=ubuntu ansible_password=ubuntu ansible_ssh_common_args='-o StrictHostKeyChecking=no'
-worker02 ansible_host=172.31.13.73 ansible_user=ubuntu ansible_password=ubuntu ansible_ssh_common_args='-o StrictHostKeyChecking=no'
-```
-• Utilisez une commande ad-hoc pour tentez de pinger vos clients afin de confirmer que l’accès est opérationnel
-
-`ansible -i inventaire all -m ping`
-```ruby
-worker01 | SUCCESS => {
-    "ansible_facts": {
-        "discovered_interpreter_python": "/usr/bin/python3"
-    },
-    "changed": false,
-    "ping": "pong"
-}
-worker02 | SUCCESS => {
-    "ansible_facts": {
-        "discovered_interpreter_python": "/usr/bin/python3"
-    },
-    "changed": false,
-    "ping": "pong"
-}
-```
-• Utilisez une commande ad-hoc installer nginx sur le client1
-
-`ansible -i inventaire worker01 -m apt -b -a "name=nginx state=present"`
-
-• Démarrer nginx puis activez le (Enable)
-
-`ansible -i inventaire worker01 -m service -b -a "name=nginx state=started"`
-
-• Installez apache2 sur le client2, démarrer son service et puis activez le également
-
-`ansible -i inventaire worker02 -m apt -b -a "name=apache2 state=present"`
-
-• Testez à l’aide de l’IP de vos machines clientes si les serveurs webs fonctionnent correctement sur vos différentes machines (http://@IP:80; Pensez à ouvrir le port
-80 au niveau de votre SG)
-
-`curl 3.216.79.121:80`
-`curl 3.92.42.244:80`
-
-• Supprimez à l’aide des commandes ad-hoc les paquets et services nginx et apache2 sur vos clients
-
-- nginx
-
-`ansible -i inventaire worker01 -b -m apt -a "name=nginx state=absent purge=yes autoremove=yes"`
-
-- apache2
-
-`ansible -i inventaire worker02 -b -m apt -a "name=apache2 state=absent purge=yes autoremove=yes"`
-
-# Pour avoir acces en root sur les slaves :
-```
-- avant
-ansible -i inventaire worker01 -m apt -a "name=nginx state=present"
-
-"-b"
-- apres
-ansible -i inventaire worker01 -m apt -b -a "name=nginx state=present"
-```
 
 # YAML
 
@@ -572,43 +416,7 @@ ansible -i inventaire worker01 -m apt -b -a "name=nginx state=present"
 - Les group_vars : inventaire d’un groupe de machines
 
 
-# TP-4: Inventaire au format yaml
-- Modifiez le fichier hosts que vous avez écris au format INI afin qu’il soit en au format yaml
 
-* Avant:
-```Ruby
-worker01 ansible_host=172.31.6.70 ansible_user=ubuntu ansible_password=ubuntu ansible_ssh_common_args='-o StrictHostKeyChecking=no'
-worker02 ansible_host=172.31.13.73 ansible_user=ubuntu ansible_password=ubuntu ansible_ssh_common_args='-o StrictHostKeyChecking=no'
-```
-
-`vi hosts.yaml`
-
-```Ruby
-all:
-  hosts:
-    worker01:
-      ansible_host:  172.31.6.70
-      ansible_user:  ubuntu
-      ansible_password:  ubuntu
-      ansible_ssh_common_args:  '-o StrictHostKeyChecking=no'
-    worker02:
-      ansible_host:  172.31.13.73
-      ansible_user:  ubuntu
-      ansible_password:  ubuntu
-      ansible_ssh_common_args:  '-o StrictHostKeyChecking=no'
-```
-- Testez à nouveau vos commandes ad-hoc avec le nouveau fichier d’inventaire au format yaml
-
-`ansible -i hosts.yaml worker01 -m ping`
-```Ruby
-worker01 | SUCCESS => {
-    "ansible_facts": {
-        "discovered_interpreter_python": "/usr/bin/python3"
-    },
-    "changed": false,
-    "ping": "pong"
-}
-```
 
 # Inventaire au format INI & Yaml
 
@@ -646,205 +454,7 @@ Utiliser le format YAML au lieu du JSON par défaut
 ansible-inventory -i hosts.ini --list -y > hosts.yaml
 ansible-inventory -i hosts.ini --list > hosts.json
 
-# TP-5: Inventaire et variable
-Créez un fichier hosts.ini au format INI avec les modalités d’inventaire suivant:
 
-
-• Tous les hôtes via le groupe « all » devront avoir pour login user ubuntu
-
-    [all:vars]
-    ansible_user=ubuntu
-
-• Les clients devrons faire partie d’un groupe appelé « prod »
-
-    [prod]
-    worker01 ansible_host=172.31.6.70 ansible_password=ubuntu ansible_ssh_common_args='-o StrictHostKeyChecking=no'
-    worker02 ansible_host=172.31.13.73 ansible_password=ubuntu ansible_ssh_common_args='-o StrictHostKeyChecking=no'
-
-• Un groupe contenant l’hote Master ansible sera présent
-
-(la variable `ansible_connection` valorisée avec `local` est utilisé pour définir le master.)
-
-    [ansible]
-    localhost ansible_connection=local
-
-• Le mot de passe à utiliser pour toutes connexion ssh devra être ubuntu pour toutes les machines du groupe « prod »
-
-    [prod]
-    worker01 ansible_host=172.31.6.70 ansible_password=ubuntu ansible_ssh_common_args='-o StrictHostKeyChecking=no'
-    worker02 ansible_host=172.31.13.73 ansible_password=ubuntu ansible_ssh_common_args='-o StrictHostKeyChecking=no'
-
-• La variable « env » devra être égale à « production » pour toutes les machines du groupe « prod »
-
-    [prod:vars]
-    env=production
-
-`vi hosts.ini`
-
-```ruby
-[all:vars]
-ansible_user=ubuntu
-
-[ansible]
-localhost ansible_connection=local
-
-[prod]
-worker01 ansible_host=172.31.6.70 ansible_password=ubuntu ansible_ssh_common_args='-o StrictHostKeyChecking=no'
-worker02 ansible_host=172.31.13.73 ansible_password=ubuntu ansible_ssh_common_args='-o StrictHostKeyChecking=no'
-
-[prod:vars]
-env=production
-```
-
-• Créez ensuite un fichier hosts.yaml, version yaml du fichier ini
-
-    ansible-inventory -i hosts.ini --list -y > hosts.yaml
-
-cat hosts.yaml
-```Ruby
-all:
-  children:
-    ansible:
-      hosts:
-        localhost:
-          ansible_connection: local
-          ansible_user: ubuntu
-    prod:
-      hosts:
-        worker01:
-          ansible_host: 172.31.6.70
-          ansible_password: ubuntu
-          ansible_ssh_common_args: -o StrictHostKeyChecking=no
-          ansible_user: ubuntu
-          env: production
-        worker02:
-          ansible_host: 172.31.13.73
-          ansible_password: ubuntu
-          ansible_ssh_common_args: -o StrictHostKeyChecking=no
-          ansible_user: ubuntu
-          env: production
-    ungrouped: {}
-```
-
-• Transformer le fichier yaml en json et tester de nouveau les commandes
-
-    ansible-inventory -i hosts.ini --list > hosts.json 
-
- `vi hosts.json`
-```json
-{
-    "_meta": {
-        "hostvars": {
-            "localhost": {
-                "ansible_connection": "local",
-                "ansible_user": "ubuntu"
-            },
-            "worker01": {
-                "ansible_host": "172.31.6.70",
-                "ansible_password": "ubuntu",
-                "ansible_ssh_common_args": "-o StrictHostKeyChecking=no",
-                "ansible_user": "ubuntu",
-                "env": "production"
-            },
-            "worker02": {
-                "ansible_host": "172.31.13.73",
-                "ansible_password": "ubuntu",
-                "ansible_ssh_common_args": "-o StrictHostKeyChecking=no",
-                "ansible_user": "ubuntu",
-                "env": "production"
-            }
-        }
-    },
-    "all": {
-        "children": [
-            "ansible",
-            "prod",
-            "ungrouped"
-        ]
-    },
-    "ansible": {
-        "hosts": [
-            "localhost"
-        ]
-    },
-    "prod": {
-        "hosts": [
-            "worker01",
-            "worker02"
-        ]
-```
-
-(les conversions se font exclusivement vers yaml ou json pas ini)
-
-`ls /home/ubuntu`
-```
-hosts  hosts.ini  hosts.json  hosts.yaml  inventaire
-```
-
-• Testez les commandes ad-hoc de ping et setup avec les trois fichiers d’inventaire
-
-`ansible -i hosts.ini all -m ping`
-```Ruby
-localhost | SUCCESS => {
-    "ansible_facts": {
-        "discovered_interpreter_python": "/usr/bin/python3"
-    },
-    "changed": false,
-    "ping": "pong"
-}
-worker01 | SUCCESS => {
-    "ansible_facts": {
-        "discovered_interpreter_python": "/usr/bin/python3"
-    },
-    "changed": false,
-    "ping": "pong"
-}
-worker02 | SUCCESS => {
-    "ansible_facts": {
-        "discovered_interpreter_python": "/usr/bin/python3"
-    },
-    "changed": false,
-    "ping": "pong"
-}
-```
-`ansible -i hosts.yaml all -m ping`
-```Ruby
-localhost | SUCCESS => {
-    "ansible_facts": {
-        "discovered_interpreter_python": "/usr/bin/python3"
-    },
-    "changed": false,
-    "ping": "pong"
-}
-worker01 | SUCCESS => {
-    "ansible_facts": {
-        "discovered_interpreter_python": "/usr/bin/python3"
-    },
-    "changed": false,
-    "ping": "pong"
-}
-worker02 | SUCCESS => {
-    "ansible_facts": {
-        "discovered_interpreter_python": "/usr/bin/python3"
-    },
-    "changed": false,
-    "ping": "pong"
-}
-```
-`ansible -i hosts.json all -m ping`
-```Ruby
-[WARNING]: Skipping unexpected key (hostvars) in group (_meta), only "vars", "children" and "hosts" are valid
-[WARNING]:  * Failed to parse /home/ubuntu/hosts.json with yaml plugin: Invalid "children" entry for "all" group, requires a dictionary, found "<class 'list'>" instead.
-[WARNING]:  * Failed to parse /home/ubuntu/hosts.json with ini plugin: Invalid host pattern '_meta:' supplied, ending in ':' is not allowed, this character is reserved to provide a
-port.
-[WARNING]: Unable to parse /home/ubuntu/hosts.json as an inventory source
-[WARNING]: No inventory was parsed, only implicit localhost is available
-{ | UNREACHABLE! => {
-    "changed": false,
-    "msg": "Failed to connect to the host via ssh: ssh: Could not resolve hostname {: Name or service not known",
-    "unreachable": true
-}
-```
 # Le module Debug 
 
 `ansible.builtin.debug`
@@ -874,220 +484,6 @@ Au lieu de placer les variables des hôtes et des groupes dans le fichier d’in
     - worker02.yaml
 
 
-# TP-6: Inventaire et surcharge de variable
-
-- Servez vous de precedent fichier d’inventaire au format YAML afin de testez la surcharge des variables
-- Surcharger ensuite cette variable en utilisant le repertoire group_vars et testez afin d’avoir sa nouvelle valeur
-- Surcharger avec un valeur différente en utilisant le repertoire host_vars puis testez
-- Surcharger ensuite avec une valeur différente en utilisant le parameter –e afin de passer la valeur de la variable lors de l’execution de la commande ansible
-
-![Getting Started](/assets/b.jpg)
-
-## Information :
-
-Au lieu de placer les variables des hôtes et des groupes dans le fichier d’inventaire `hosts.ini`. 
-
-Il est possible de les encoder dans des fichiers séparés prenant le nom des hôtes dans le dossier par défaut host_vars en format YAML :
-
-    - localhost.yaml
-    - worker01.yaml
-    - worker02.yaml
-
- et du groupe dans les dossiers par défaut group_vars en format YAML :
-
-    - prod.yaml
-
-## Question 1
-1) Servez vous de precedent fichier d’inventaire au format YAML afin de testez la surcharge des variables
-```txt
-Utilisez le module debug avec l’attribut ”msg” pour affichier la valeur de la variable env ( -m debug -a "msg={{ env }}"
-```
-
-`ansible -i hosts.ini all -m debug -a "msg='{{ env }}'"`
-```ruby
-localhost | FAILED! => {
-    "msg": "The task includes an option with an undefined variable. The error was: 'env' is undefined. 'env' is undefined"
-}
-worker01 | SUCCESS => {
-    "msg": "production"
-}
-worker02 | SUCCESS => {
-    "msg": "production"
-}
-```
-## Explication:
-
-Le fichier `hosts.ini` contient une variable d'environement pour les `worker01 & 02` dans le group `prod` avec pour valeur `production`. Mais `localhost` lui ne dispose d'aucune variable d'environement.
-
-```ruby
-[all:vars]
-ansible_user=ubuntu
-
-[ansible]
-localhost ansible_connection=local
-
-[prod]
-worker01 ansible_host=172.31.6.70 ansible_password=ubuntu ansible_ssh_common_args='-o StrictHostKeyChecking=no'
-worker02 ansible_host=172.31.13.73 ansible_password=ubuntu ansible_ssh_common_args='-o StrictHostKeyChecking=no'
-
-[prod:vars]
-env=production
-```
-
-## Question 2
-2) Surcharger ensuite cette variable en utilisant le repertoire group_vars et testez afin d’avoir sa nouvelle valeur
-
-
-- repertoir projet = /home/ubuntu
-
-`mkdir group_vars`
-
-`vi group_vars/prod.yaml`
-
-```ruby
-env:  prod
-```
-
-`ansible -i hosts.ini all -m debug -a "msg='{{ env }}'"`
-
-```ruby
-localhost | FAILED! => {
-    "msg": "The task includes an option with an undefined variable. The error was: 'env' is undefined. 'env' is undefined"
-}
-worker01 | SUCCESS => {
-    "msg": "prod"
-}
-worker02 | SUCCESS => {
-    "msg": "prod"
-}
-```
-- group_vars
-    - prod.yaml
-
-# Explication:
-
-Le fichier `hosts.ini` contient une variable d'environement pour les `worker01 & 02` dans le group `prod` avec pour valeur `production`. Mais j'ai créé un répertoire `group_vars` qui contient un fichier du meme nom que mon groupe "prod" `prod.yaml`. Ainsi, la varible qu'elle contient s'appliquera à tous les workers issu du group "pro" meme si le fichier inventaire hosts.ini possede des varable spécifiques. `localhost` lui ne dispose d'aucune variable d'environement.
-
-
-## Question 3
-3) Surcharger avec un valeur différente en utilisant le repertoire host_vars puis testez
-
-`/home/ubuntu`
-
-`mkdir host_vars`
-  
-`vi host_vars/worker01.yaml`
-
-```ruby
-env:  worker01
-```
-
-- group_vars
-    - prod.yaml
-- host_vars
-    - worker01.yaml
-
-`ansible -i hosts.ini all -m debug -a "msg='{{ env }}'"`
-
-```ruby
-localhost | FAILED! => {
-    "msg": "The task includes an option with an undefined variable. The error was: 'env' is undefined. 'env' is undefined"
-}
-worker01 | SUCCESS => {
-    "msg": "worker01"
-}
-worker02 | SUCCESS => {
-    "msg": "prod"
-}
-```
-
-`vi host_vars/worker02.yaml`
-
-```ruby
-env:  worker02
-```
-
-`ansible -i hosts.ini all -m debug -a "msg='{{ env }}'"`
-```ruby
-localhost | FAILED! => {
-    "msg": "The task includes an option with an undefined variable. The error was: 'env' is undefined. 'env' is undefined"
-}
-worker01 | SUCCESS => {
-    "msg": "worker01"
-}
-worker02 | SUCCESS => {
-    "msg": "worker02"
-}
-```
-- group_vars
-    - prod.yaml
-- host_vars
-    - worker01.yaml
-    - worker02.yaml
-
-`vi host_vars/localhost.yaml`
-
-```ruby
-env:  localhost
-```
-`ansible -i hosts.ini all -m debug -a "msg='{{ env }}'"`
-```ruby
-localhost | SUCCESS => {
-    "msg": "localhost"
-}
-worker01 | SUCCESS => {
-    "msg": "worker01"
-}
-worker02 | SUCCESS => {
-    "msg": "worker02"
-}
-```
-- group_vars
-    - prod.yaml
-- host_vars
-    - localhost.yaml
-    - worker01.yaml
-    - worker02.yaml
-
-`ansible -i hosts.ini all -m debug -a "msg='{{ env }}'" -e env=surcharge`
-```ruby
-localhost | SUCCESS => {
-    "msg": "surcharge"
-}
-worker01 | SUCCESS => {
-    "msg": "surcharge"
-}
-worker02 | SUCCESS => {
-    "msg": "surcharge"
-}
-```
-
-`/home/ubuntu`
-
-- group_vars
-    - prod.yaml
-- host_vars
-    - localhost.yaml
-    - worker01.yaml
-    - worker02.yaml
-
-
-`vi hosts.ini`
-
-```ruby
-[all:vars]
-ansible_user=ubuntu
-
-[ansible]
-localhost ansible_connection=local
-
-[prod]
-worker01 ansible_host=172.31.6.70 ansible_password=ubuntu ansible_ssh_common_args='-o StrictHostKeyChecking=no'
-worker02 ansible_host=172.31.13.73 ansible_password=ubuntu ansible_ssh_common_args='-o StrictHostKeyChecking=no'
-
-[prod:vars]
-env=production
-```
 
 # playbooks
 

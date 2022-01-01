@@ -1,0 +1,214 @@
+# TP-6: Inventaire et surcharge de variable
+
+- Servez vous de precedent fichier d’inventaire au format YAML afin de testez la surcharge des variables
+- Surcharger ensuite cette variable en utilisant le repertoire group_vars et testez afin d’avoir sa nouvelle valeur
+- Surcharger avec un valeur différente en utilisant le repertoire host_vars puis testez
+- Surcharger ensuite avec une valeur différente en utilisant le parameter –e afin de passer la valeur de la variable lors de l’execution de la commande ansible
+
+![Getting Started](/assets/b.jpg)
+
+## Information :
+
+Au lieu de placer les variables des hôtes et des groupes dans le fichier d’inventaire `hosts.ini`. 
+
+Il est possible de les encoder dans des fichiers séparés prenant le nom des hôtes dans le dossier par défaut host_vars en format YAML :
+
+    - localhost.yaml
+    - worker01.yaml
+    - worker02.yaml
+
+ et du groupe dans les dossiers par défaut group_vars en format YAML :
+
+    - prod.yaml
+
+## Question 1
+1) Servez vous de precedent fichier d’inventaire au format YAML afin de testez la surcharge des variables
+```txt
+Utilisez le module debug avec l’attribut ”msg” pour affichier la valeur de la variable env ( -m debug -a "msg={{ env }}"
+```
+
+`ansible -i hosts.ini all -m debug -a "msg='{{ env }}'"`
+```ruby
+localhost | FAILED! => {
+    "msg": "The task includes an option with an undefined variable. The error was: 'env' is undefined. 'env' is undefined"
+}
+worker01 | SUCCESS => {
+    "msg": "production"
+}
+worker02 | SUCCESS => {
+    "msg": "production"
+}
+```
+## Explication:
+
+Le fichier `hosts.ini` contient une variable d'environement pour les `worker01 & 02` dans le group `prod` avec pour valeur `production`. Mais `localhost` lui ne dispose d'aucune variable d'environement.
+
+```ruby
+[all:vars]
+ansible_user=ubuntu
+
+[ansible]
+localhost ansible_connection=local
+
+[prod]
+worker01 ansible_host=172.31.6.70 ansible_password=ubuntu ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+worker02 ansible_host=172.31.13.73 ansible_password=ubuntu ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+
+[prod:vars]
+env=production
+```
+
+## Question 2
+2) Surcharger ensuite cette variable en utilisant le repertoire group_vars et testez afin d’avoir sa nouvelle valeur
+
+
+- repertoir projet = /home/ubuntu
+
+`mkdir group_vars`
+
+`vi group_vars/prod.yaml`
+
+```ruby
+env:  prod
+```
+
+`ansible -i hosts.ini all -m debug -a "msg='{{ env }}'"`
+
+```ruby
+localhost | FAILED! => {
+    "msg": "The task includes an option with an undefined variable. The error was: 'env' is undefined. 'env' is undefined"
+}
+worker01 | SUCCESS => {
+    "msg": "prod"
+}
+worker02 | SUCCESS => {
+    "msg": "prod"
+}
+```
+- group_vars
+    - prod.yaml
+
+# Explication:
+
+Le fichier `hosts.ini` contient une variable d'environement pour les `worker01 & 02` dans le group `prod` avec pour valeur `production`. Mais j'ai créé un répertoire `group_vars` qui contient un fichier du meme nom que mon groupe "prod" `prod.yaml`. Ainsi, la varible qu'elle contient s'appliquera à tous les workers issu du group "pro" meme si le fichier inventaire hosts.ini possede des varable spécifiques. `localhost` lui ne dispose d'aucune variable d'environement.
+
+
+## Question 3
+3) Surcharger avec un valeur différente en utilisant le repertoire host_vars puis testez
+
+`/home/ubuntu`
+
+`mkdir host_vars`
+  
+`vi host_vars/worker01.yaml`
+
+```ruby
+env:  worker01
+```
+
+- group_vars
+    - prod.yaml
+- host_vars
+    - worker01.yaml
+
+`ansible -i hosts.ini all -m debug -a "msg='{{ env }}'"`
+
+```ruby
+localhost | FAILED! => {
+    "msg": "The task includes an option with an undefined variable. The error was: 'env' is undefined. 'env' is undefined"
+}
+worker01 | SUCCESS => {
+    "msg": "worker01"
+}
+worker02 | SUCCESS => {
+    "msg": "prod"
+}
+```
+
+`vi host_vars/worker02.yaml`
+
+```ruby
+env:  worker02
+```
+
+`ansible -i hosts.ini all -m debug -a "msg='{{ env }}'"`
+```ruby
+localhost | FAILED! => {
+    "msg": "The task includes an option with an undefined variable. The error was: 'env' is undefined. 'env' is undefined"
+}
+worker01 | SUCCESS => {
+    "msg": "worker01"
+}
+worker02 | SUCCESS => {
+    "msg": "worker02"
+}
+```
+- group_vars
+    - prod.yaml
+- host_vars
+    - worker01.yaml
+    - worker02.yaml
+
+`vi host_vars/localhost.yaml`
+
+```ruby
+env:  localhost
+```
+`ansible -i hosts.ini all -m debug -a "msg='{{ env }}'"`
+```ruby
+localhost | SUCCESS => {
+    "msg": "localhost"
+}
+worker01 | SUCCESS => {
+    "msg": "worker01"
+}
+worker02 | SUCCESS => {
+    "msg": "worker02"
+}
+```
+- group_vars
+    - prod.yaml
+- host_vars
+    - localhost.yaml
+    - worker01.yaml
+    - worker02.yaml
+
+`ansible -i hosts.ini all -m debug -a "msg='{{ env }}'" -e env=surcharge`
+```ruby
+localhost | SUCCESS => {
+    "msg": "surcharge"
+}
+worker01 | SUCCESS => {
+    "msg": "surcharge"
+}
+worker02 | SUCCESS => {
+    "msg": "surcharge"
+}
+```
+
+`/home/ubuntu`
+
+- group_vars
+    - prod.yaml
+- host_vars
+    - localhost.yaml
+    - worker01.yaml
+    - worker02.yaml
+
+
+`vi hosts.ini`
+
+```ruby
+[all:vars]
+ansible_user=ubuntu
+
+[ansible]
+localhost ansible_connection=local
+
+[prod]
+worker01 ansible_host=172.31.6.70 ansible_password=ubuntu ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+worker02 ansible_host=172.31.13.73 ansible_password=ubuntu ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+
+[prod:vars]
+env=production
+```

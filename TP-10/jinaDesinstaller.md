@@ -1,6 +1,5 @@
 # TP-10: JinJa désinstaller nginx
-• Ecrivez un playbook ansible qui permet maintenant de désinstaller nginx sur le
-worker02 car on a jugé en production que cela n’est plus nécessaire
+• Ecrivez un playbook ansible qui permet maintenant de désinstaller nginx sur le worker02 car on a jugé en production que cela n’est plus nécessaire
 
 1) Ecrivez le script (desinstall_nginx.sh) et templatisez le avec une structure
 conditionnelle testant la distribution Linux (Ubuntu ou Centos) avant l’exécution des commandes
