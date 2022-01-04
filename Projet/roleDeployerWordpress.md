@@ -1,5 +1,12 @@
 # Mini-projet Final
 
+# Repository
+
+https://github.com/infradev4/roleWordpress.git
+
+https://github.com/infradev4/roleDocker.git
+
+
 # Créez un rôle permettant de déployer Wordpress
 
 ```txt
@@ -313,3 +320,9 @@ PLAY RECAP *********************************************************************
 worker01                   : ok=7    changed=2    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0
 worker02                   : ok=7    changed=2    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0
 ```
+
+![Screenshot](assets\a.jpg)
+
+![Screenshot](assets\b.jpg)
+
+![Screenshot](assets\c.jpg)s
