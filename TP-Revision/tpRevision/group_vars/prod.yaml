@@ -1,0 +1,4 @@
+env: prod
+ansible_user: ubuntu
+ansible_password: '{{ ansible_vault_password }}'
+ansible_ssh_common_args: '-o StrictHostKeyChecking=no'

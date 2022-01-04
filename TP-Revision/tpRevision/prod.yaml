@@ -1,0 +1,20 @@
+all:
+  children:
+    ansible:
+      hosts:
+        localhost:
+          ansible_connection: local
+          ansible_user: ubuntu
+          ansible_password: '{{ ansible_vault_password }}'
+    prod:
+      vars:
+        env: production
+
+      hosts:
+        worker01:
+          ansible_host: 172.31.14.210
+          hostname: AnsibleWorker01
+
+        worker02:
+          ansible_host: 172.31.0.185
+          hostname: AnsibleWorker02

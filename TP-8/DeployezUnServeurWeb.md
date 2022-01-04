@@ -149,7 +149,7 @@ worker02                   : ok=2    changed=0    unreachable=0    failed=0    s
 
 • Vérifiez la syntaxe de votre playbook avec la commande ansible-lint (installez là si elle n’est pas disponible)
 
-`sudo apt-get install ansible-lint`
+`sudo apt-get install ansible-lint -y`
 
 `ansible-lint /home/ubuntu/webapp/nginx.yaml`
 ```ruby

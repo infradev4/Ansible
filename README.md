@@ -18,7 +18,25 @@ Ansible vous fournit des centaines de modules prêts à l'emploi pour gérer vos
 
 # Glossaire
 
+## Variables de connexion
+
+Les variables de connexion sont normalement utilisées pour définir les détails sur la façon d'exécuter des actions sur une cible. La plupart correspondent à des plugins de connexion, mais tous ne leur sont pas spécifiques ; d'autres plugins comme shell, terminal et devenir sont normalement impliqués. Seuls les plus courants sont décrits car chaque plugin de connexion/devenir/shell/etc peut définir ses propres surcharges et variables spécifiques. Voir Contrôler le comportement d'Ansible : règles de priorité pour savoir comment les variables de connexion interagissent avec les paramètres de configuration, les options de ligne de commande et les mots-clés de playbook.
+
+ansible_become_user
+The user Ansible ‘becomes’ after using privilege escalation. This must be available to the ‘login user’.
+
+ansible_connection
+The connection plugin actually used for the task on the target host.
+
 ansible_host
+The ip/name of the target host to use instead of inventory_hostname.
+
+ansible_python_interpreter
+The path to the Python executable Ansible should use on the target host.
+
+ansible_user
+The user Ansible ‘logs in’ as.
+
 
 
 # Que peut faire Ansible?
@@ -755,7 +773,7 @@ all:
 
 
 
-
+```
 # ansible configuration
 https://docs.ansible.com/ansible/latest/reference_appendices/config.html
 ordre de priorité
@@ -826,3 +844,217 @@ ask_vault_pass= true
 
 [privilege_escalation]
 become= true
+```
+
+# Fonctions Rolling Update : (un niveau de playbook)
+
+Fonctions permettant de définir la stratégie de déploiement que devra utiliser ansible lors de l’éxécution d’un playbook.
+Par defaut chaque tache est efectue en simultané. 
+Avec Rolling Update, les taches se font l'une apres l'autre.
+grace avec le parametres "serial"
+
+
+Le mot-clé serial indique à Ansible sur combien de serveurs opérer à la fois. Si ce n'est pas spécifié, Ansible parallélisera ces opérations jusqu'à la limite de « forks » par défaut spécifiée dans le fichier de configuration. Mais pour une mise à niveau progressive sans interruption, vous ne voudrez peut-être pas opérer sur autant d'hôtes à la fois. Si vous n'aviez qu'une poignée de serveurs Web, vous souhaiterez peut-être définir le numéro de série sur 1, pour un hôte à la fois. Si vous en avez 100, vous pourriez peut-être définir la série sur 10, pour dix à la fois.
+
+Rolling Update – max_fail_percentage
+% d'erreur authorisé sur les hots (tous)
+
+si il y a plus de 50% d'erreur sur mon playbook de 4 hots, il y aura un arrete du déploiuement si nous avons une erreur sur 2 hosts.
+any_error_fatal: true 
+pour interrompre le depoloiement dans le cas d'une erreur dans une tache.
+
+
+
+# Interrupt Execution: 
+
+Fonction permettant d’arreter l’exécution du playbook sur tous les hôtes de l’inventaire au cas où la moindre erreur est enregistrée lors de l’éxécution du playbook.
+
+# Delegate: 
+
+Fonction permettant d’exécuter une commande ou action sur un hôte délégué à partir des facts (gather_facts) de l’hote sur lequel la tache devrait normalement s’exécuter
+Pour recuperer les IP des workoers sur mon Master
+
+# delegate_to
+
+Si vous souhaitez effectuer une tâche sur un hôte en référence à d'autres hôtes, utilisez le mot-clé délégué_to sur une tâche. C'est idéal pour gérer les nœuds dans un pool à charge équilibrée ou pour contrôler les fenêtres de panne. Vous pouvez utiliser la délégation avec le mot-clé serial pour contrôler le nombre d'hôtes s'exécutant en même temps :
+
+
+# delegate_facts
+Déléguer des tâches Ansible, c'est comme déléguer des tâches dans le monde réel - vos courses vous appartiennent, même si quelqu'un d'autre les livre à votre domicile. De même, tous les faits collectés par une tâche déléguée sont affectés par défaut à l'inventaire_hostname (l'hôte actuel), et non à l'hôte qui a produit les faits (le délégué à l'hôte). Pour attribuer des faits rassemblés à l'hôte délégué au lieu de l'hôte actuel, définissez délégué_facts sur true :
+
+# Run Once: 
+(fonctionne avec serial)
+Fonction permettant d’exécuter une tache juste une seule fois peu importe le nombre d’hotes définis dans le fichier d’inventaire. Toutefois, il est important de noter que le Run Once s’applique pour chaque groupe d’hotes d’exécution simultané défini au niveau de « serial »
+
+# Ignore_errors: 
+[si il y a une erreur sur un worker, il n'y aura plus d'execution de tache, sauf avec Ignore_errors au niveau des taches.]
+
+Fonction permettant d’ignorer les erreurs au niveau des taches et ainsi de ne pas arrêter l’exécution d’un playbook sur un hôte en cas d’échec ou d’erreurs au niveau de ladite tache
+
+Ignore_unreacheable: 
+Fonction permettant d’ignorer l’erreur sur une tache si celle-ci est due au fait que l’hote soit injoignable
+
+# Register: 
+
+Fonction permettant sauvegarder les variables de retour d’un modules dans une variable de notre choix. NB: Prendre connaissance des variables disponibles (return values) pour chacun des modules à utiliser
+
+
+Enregistrement de variables
+
+Vous pouvez créer des variables à partir de la sortie d'une tâche Ansible avec le registre de mot-clé de tâche. Vous pouvez utiliser des variables enregistrées dans toutes les tâches ultérieures de votre jeu. Par example: 
+- hosts: web_servers
+
+  tasks:
+
+     - name: Run a shell command and register its output as a variable
+       ansible.builtin.shell: /usr/bin/foo
+       register: foo_result
+       ignore_errors: true
+
+     - name: Run a shell command using output of the previous task
+       ansible.builtin.shell: /usr/bin/bar
+       when: foo_result.rc == 5
+
+
+
+Les variables enregistrées peuvent être des variables simples, des variables de liste, des variables de dictionnaire ou des structures de données imbriquées complexes. La documentation de chaque module comprend une section RETURN décrivant les valeurs de retour pour ce module. Pour voir les valeurs d'une tâche particulière, exécutez votre playbook avec -v. 
+
+Les variables enregistrées sont stockées en mémoire. Vous ne pouvez pas mettre en cache les variables enregistrées pour une utilisation dans des jeux futurs. Inscrit les variables ne sont valides sur l'hôte que pour le reste de l'exécution du playbook en cours. 
+
+Les variables enregistrées sont des variables au niveau de l'hôte. Lorsque vous enregistrez une variable dans une tâche avec une boucle, la variable enregistrée contient une valeur pour chaque élément de la boucle. La structure de données placée dans la variable pendant la boucle contiendra un attribut de résultats, c'est-à-dire une liste de toutes les réponses du module. Pour un exemple plus détaillé de la façon dont cela fonctionne, consultez la section Boucles sur l'utilisation de register avec une boucle.
+
+# Handlers
+Parfois, vous souhaitez qu'une tâche ne s'exécute que lorsqu'une modification est apportée sur une machine. Par exemple, vous souhaiterez peut-être redémarrer un service si une tâche met à jour la configuration de ce service, mais pas si la configuration est inchangée. Ansible utilise des gestionnaires pour traiter ce cas d'utilisation. Les gestionnaires sont des tâches qui ne s'exécutent que lorsqu'elles sont notifiées. Chaque gestionnaire doit avoir un nom globalement unique.
+
+
+# Rôles: 
+## Rendre les playbook réutilisables
+
+Les rôles vous permettent de charger automatiquement les variables, fichiers, tâches, gestionnaires et autres artefacts Ansible associés en fonction d'une structure de fichiers connue. Après avoir regroupé votre contenu dans des rôles, vous pouvez facilement les réutiliser et les partager avec d'autres utilisateurs.
+
+# Structure du répertoire des rôles
+
+Un rôle Ansible a une structure de répertoires définie avec huit répertoires standard principaux. Vous devez inclure au moins un de ces répertoires dans chaque rôle. Vous pouvez omettre tous les répertoires que le rôle n'utilise pas. 
+
+## Par example:
+```ruby
+# playbooks
+site.yml
+webservers.yml
+fooservers.yml
+roles/
+    common/
+        tasks/
+        handlers/
+        library/
+        files/
+        templates/
+        vars/
+        defaults/
+        meta/
+    webservers/
+        tasks/
+        defaults/
+        meta/
+```
+Par défaut, Ansible recherchera dans chaque répertoire d'un rôle un fichier main.yml pour le contenu pertinent
+
+* task/main.yml - la liste principale des tâches exécutées par le rôle.
+
+* handlers/main.yml - gestionnaires, qui peuvent être utilisés à l'intérieur ou à l'extérieur de ce rôle. 
+
+* library/my_module.py - modules, qui peuvent être utilisés dans ce rôle (voir Intégrer des modules et des plugins dans des rôles pour plus d'informations). 
+
+* defaults/main.yml - variables par défaut pour le rôle (voir Utilisation des variables pour plus d'informations). Ces variables ont la priorité la plus basse de toutes les variables disponibles et peuvent être facilement remplacées par toute autre variable, y compris les variables d'inventaire.
+
+* vars/main.yml - autres variables pour le rôle (voir Utilisation de variables pour plus d'informations). 
+
+* files/main.yml - fichiers que le rôle déploie. 
+
+* templates/main.yml - modèles que le rôle déploie. 
+
+* meta/main.yml - métadonnées pour le rôle, y compris les dépendances de rôle.
+
+# Stocker et rechercher des rôles
+
+Par défaut, Ansible recherche des rôles dans les emplacements suivants : 
+
+dans les collections, si vous les utilisez dans un répertoire appelé roles/, relatif au fichier playbook dans le role_path configuré. 
+
+Le chemin de recherche par défaut est ~/.ansible/roles:/usr/share/ansible/roles:/etc/ansible/roles. 
+
+dans le répertoire où se trouve le fichier playbook 
+
+Si vous stockez vos rôles dans un emplacement différent, définissez l'option de configuration roles_path afin qu'Ansible puisse trouver vos rôles. L'archivage des rôles partagés dans un seul emplacement facilite leur utilisation dans plusieurs playbooks. 
+
+Voir Configuration d'Ansible pour plus de détails sur la gestion des paramètres dans ansible.cfg. 
+
+Vous pouvez également appeler un rôle avec un chemin complet :
+```ruby
+---
+- hosts: production
+  roles:
+    - role: '/path/to/my/roles/common'
+```
+
+
+## comsommer la ressources
+ansible-galaxy ......
+
+ex: odoo
+
+git submodule add https://github.com/sadofrazer/odoo_role.git roles/odoo
+
+oddo.yaml
+  name:
+  hosts: production
+  become: true
+  roles: 
+    - odoo
+
+hosts.yaml
+
+(git clone submodule ou git clone)
+roles
+  odoo
+    readme.md
+    defaults
+    galaxy.ymal
+    meta
+    tasks
+    templates
+    tests
+
+playbook-ansible -i hosts.yaml odoo.yaml
+
+ou
+
+## methode galaxy
+( pas de repertoire à créé)
+
+vi oddo.yaml
+  name:
+  hosts: production
+  become: true
+  roles: 
+    - odoo
+
+vi hosts.yaml
+
+vi requirements.yaml
+# e nom de la ressource à consommer
+- src:  sadofrazer.odoo_role
+
+
+
+
+ansible-galaxy  install -r requirements.yaml
+
+## si je cherche un seul role
+ansible-galaxy install sadofrazer.odoo_role
+
+ubuntu@AnsibleMaster:~$ ansible-galaxy role init docker_role
+- Role docker_role was created successfully
+
+
+meta et galaxy pour pousser sur galaxy-ansyble

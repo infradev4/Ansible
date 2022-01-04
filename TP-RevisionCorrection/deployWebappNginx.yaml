@@ -1,0 +1,11 @@
+---
+- name: "change the name of hosts"
+  import_playbook: hostname.yaml
+  #vars_files ne peut pas etre utilisé dans include
+
+- name: "Install docker with prerequises"
+  import_playbook: docker.yaml
+
+
+- name: "deploy webapp with nginx"
+  import_playbook: webappNginx.yaml 

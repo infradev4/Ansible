@@ -1,0 +1,7 @@
+-  name: "edit the name of our host"
+   hosts: all
+   vars_files:  secret.yaml
+   tasks:
+     -  name: "edit the name of the hosts"
+        #wreat with "ini" methode hear
+        hostname: name="{{ hostname }}"

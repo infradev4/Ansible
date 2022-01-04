@@ -1,0 +1,30 @@
+---
+# tasks file for docker
+- name: install python pip for distribution Ubuntu
+  apt:
+    name: python3-pip
+    state: present
+  when: ansible_distribution == "Ubuntu"
+
+- name: install docker-py module for distribution Ubuntu
+  pip:
+    name: docker-py
+    state: present
+  when: ansible_distribution == "Ubuntu"
+
+- name: install python pip for distribution Centos
+  yum:
+    name: python3-pip
+    state: present
+  when: ansible_distribution == "Centos"
+
+- name: install docker-py module for distribution Centos
+  pip:
+    name: docker-py
+    state: present
+  when: ansible_distribution == "Centos"
+
+- name: Copy Script files
+  template:
+    src: "install_docker.sh.j2"
+    dest: "/home/ubuntu/install_docker.sh"
