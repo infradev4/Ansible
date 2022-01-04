@@ -84,7 +84,7 @@ sudo apt-get install -y docker-ce
 sudo groupadd docker
 sudo usermod -aG docker $USER
 sudo systemctl enable docker
-{% elif ansible_distribution == "Centos" %}
+{% elif ansible_distribution == "CentOS" %}
    curl -fsSL https://get.docker.com -o get-docker.sh
    sudo sh get-docker.sh
    sudo groupadd docker
@@ -115,18 +115,41 @@ roles\docker_role\tasks
   yum:
     name: python3-pip
     state: present
-  when: ansible_distribution == "Centos"
+  when: ansible_distribution == "CentOS"
 
 - name: install docker-py module for distribution Centos
   pip:
     name: docker-py
     state: present
-  when: ansible_distribution == "Centos"
+  when: ansible_distribution == "CentOS"
 
 - name: Copy Script files
   template:
     src: "install_docker.sh.j2"
     dest: "/home/ubuntu/install_docker.sh"
+
+
+
+
+vi docker/galaxy.yaml
+
+---
+namespace: community
+name: docker_role
+version: 1.0.0
+readme: README.md
+authors:
+  - oussama ZAID
+description: Install docker_container for Ansible
+license_file: COPYING
+tags:
+  - v1
+repository: https://github.com/infradev4/roleDocker.git
+documentation: https://github.com/infradev4/roleDocker.git
+homepage:https://github.com/infradev4/roleDocker.git
+issues: https://github.com/infradev4/roleDocker.git
+build_ignore:
+  - .gitignore
 
 
 ansible-playbook -i hosts.yaml docker.yaml

@@ -1,0 +1,17 @@
+---
+namespace: community
+name: docker
+version: 1.0.0
+readme: README.md
+authors:
+  - Oussama ZAID
+description: Install docker
+license_file: COPYING
+tags:
+  - v1
+repository: https://github.com/infradev4/roleDocker.git
+documentation: https://github.com/infradev4/roleDocker.git
+homepage: https://github.com/infradev4/roleDocker.git
+issues: https://github.com/infradev4/roleDocker.git
+build_ignore:
+  - .gitignore

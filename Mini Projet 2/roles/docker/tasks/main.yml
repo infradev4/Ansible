@@ -16,13 +16,13 @@
   yum:
     name: python3-pip
     state: present
-  when: ansible_distribution == "Centos"
+  when: ansible_distribution == "CentOS"
 
 - name: install docker-py module for distribution Centos
   pip:
     name: docker-py
     state: present
-  when: ansible_distribution == "Centos"
+  when: ansible_distribution == "CentOS"
 
 - name: Copy Script files
   template:

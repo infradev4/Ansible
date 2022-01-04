@@ -1,0 +1,6 @@
+-  name:
+   hosts: prod
+   become: true
+   roles: 
+     - docker
+     - wordpress

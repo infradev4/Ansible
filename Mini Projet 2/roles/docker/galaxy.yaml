@@ -1,0 +1,17 @@
+---
+namespace: community
+name: docker_role
+version: 1.0.0
+readme: README.md
+authors:
+  - oussama ZAID
+description: Install docker_container for Ansible
+license_file: COPYING
+tags:
+  - v1
+repository: https://github.com/infradev4/roleDocker.git
+documentation: https://github.com/infradev4/roleDocker.git
+homepage:https://github.com/infradev4/roleDocker.git
+issues: https://github.com/infradev4/roleDocker.git
+build_ignore:
+  - .gitignore
