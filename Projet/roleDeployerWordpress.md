@@ -214,6 +214,56 @@ all:
           ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
           hostname: AnsibleWorker02
 ```
+
+# Création dy fichier galaxy
+```ruby
+roles/
+├── docker
+├── wordpress
+├── hosts.yaml
+├── docker.yaml
+├── galaxy.yaml
+```
+
+`vi galaxy.yaml`
+```ruby
+---
+namespace: community
+name: wordpress
+version: 1.0.0
+readme: README.md
+authors:
+  - Oussama ZAID
+description: Install wordpress with docker
+license_file: COPYING
+tags:
+  - v1
+repository: https://github.com/infradev4/roleWordpress.git
+documentation: https://github.com/infradev4/roleWordpress.git
+homepage: https://github.com/infradev4/roleWordpress.git
+issues: https://github.com/infradev4/roleWordpress.git
+build_ignore:
+  - .gitignore
+```
+
+# Création dy fichier main.yml de meta 
+```ruby
+wordpress/
+├── meta
+│   └── main.yml
+```
+`vi main.yml`
+
+```ruby
+---
+galaxy_info:
+  author: Oussama ZAID
+  description: Setup simple wordpress site using docker container
+  license: COPYING
+  min_ansible_version: core 2.12.1
+```
+
+
 `ubuntu@AnsibleMaster:~/roles$ ansible-playbook -i hosts.yaml docker.yaml`
 
 ```ruby
