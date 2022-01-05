@@ -1058,3 +1058,32 @@ ubuntu@AnsibleMaster:~$ ansible-galaxy role init docker_role
 
 
 meta et galaxy pour pousser sur galaxy-ansyble
+
+# Ansible Tower
+GESTION ET PROGRMTION DES PLABOOKS AVEC DES WEBHOOKS
+
+
+* Projets
+
+Les projets sont des collections logiques de playbooks dans Ansible Tower. Ces playbooks résident soit sur l’instance d’Ansible Tower, soit dans un système de contrôle de version de code source pris en charge par Tower.
+
+* Inventaires
+
+Un inventaire est une collection d’hôtes sur lesquels des travaux peuvent être lancés, comme un fichier d’inventaire Ansible. Les inventaires sont divisés en groupes et ces groupes contiennent les hôtes réels. Les groupes peuvent être remplis manuellement, en entrant des noms d’hôtes dans Tower, à partir de l’un des fournisseurs de cloud pris en charge par Ansible Tower ou via des scripts d’inventaire dynamique.
+
+* Identifiants
+
+Les informations d’identification sont utilisées par Tower pour l’authentification lors du lancement de Jobs sur des machines, la synchronisation avec les sources d’inventaire et l’importation de contenu de projet à partir d’un système de contrôle de version. La configuration des informations d’identification se trouve dans les paramètres.
+
+Les informations d’identification de Tower sont importées et stockées chiffrées dans le système et ne peuvent être récupérées en texte brut sur la ligne de commande par aucun utilisateur. Vous pouvez accorder aux utilisateurs et aux équipes la possibilité d’utiliser ces informations d’identification, sans réellement exposer les informations d’identification à l’utilisateur.
+
+* Modèles
+
+Un modèle de travail est une définition et un ensemble de paramètres permettant d’exécuter un travail Ansible. Les modèles de travaux sont utiles pour exécuter plusieurs fois le même travail. Les modèles de tâches encouragent également la réutilisation du contenu du playbook Ansible et la collaboration entre les équipes. Pour exécuter un travail, Tower requiert que vous créiez d’abord un modèle de travail.
+
+* taches
+
+Une taches est essentiellement une instance d’un playbook Ansible lancé par Tower sur un inventaire d’hôtes.
+
+* Jobs = playbooks
+
