@@ -93,11 +93,28 @@ mysql_container_data:  mysqlData
 
 # Création du fichier de tâches (tasks)
 
-```
+```txt
 wordpress/
 ├── tasks
 │   └── main.yml
 ```
+
+```txt
+docker_network:
+Créez/supprimez des réseaux Docker et connectez-y des conteneurs.
+```
+
+```txt
+https://docs.docker.com/network/links/
+https://docs.ansible.com/ansible/2.9/modules/docker_container_module.html
+
+links:
+      - "{{ mariadb_container_name }}:mysql_host"
+
+Les liens permettent aux conteneurs de se découvrir et de transférer en toute sécurité des informations sur un conteneur à un autre conteneur. Lorsque vous configurez un lien, vous créez un conduit entre un conteneur source et un conteneur destinataire. Le destinataire peut alors accéder à des données sélectionnées sur la source. Pour créer un lien, vous utilisez l'indicateur --link. Tout d'abord, créez un nouveau conteneur, cette fois contenant une base de données.
+
+
+```    
 
 `vi wordpress/tasks/main.yml`
 ```ruby
@@ -112,6 +129,7 @@ wordpress/
     name: "{{ mariadb_container_name }}"
     image: "{{ mariadb_container_name }}"
     state: started
+    restart_policy: always
     env:
       MYSQL_ROOT_PASSWORD: "{{ mysql_root_password }}"
       MYSQL_DATABASE: "{{ mysql_database }}"
@@ -127,6 +145,7 @@ wordpress/
     name: "{{ wordpress_container_name }}"
     image: "{{ wordpress_container_name }}"
     state: started
+    restart_policy: always
     env:
       WORDPRESS_DB_HOST: mysql_host
       WORDPRESS_DB_USER: "{{ mysql_user }}"
@@ -321,8 +340,78 @@ worker01                   : ok=7    changed=2    unreachable=0    failed=0    s
 worker02                   : ok=7    changed=2    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0
 ```
 
+# Test Worker01
+```ruby
+ubuntu@AnsibleWorker01:~$ docker ps
+IMAGE       PORTS                                NAMES
+wordpress   0.0.0.0:80->80/tcp                   wordpress
+mysql       0.0.0.0:3306->3306/tcp, 33060/tcp   mysql
+```
+## Adressage Worker01
+```ruby
+ubuntu@AnsibleWorker01:~$ docker inspect wordpress | grep -i "IPAddress"
+            "SecondaryIPAddresses": null,
+            "IPAddress": "172.17.0.3",
+                    "IPAddress": "172.17.0.3",
+                    "IPAddress": "172.18.0.3",
+```
+
+## Adressage Worker02
+```ruby
+ubuntu@AnsibleWorker01:~$ docker inspect mysql | grep -i "IPAddress"
+            "SecondaryIPAddresses": null,
+            "IPAddress": "172.17.0.2",
+                    "IPAddress": "172.17.0.2",
+                    "IPAddress": "172.18.0.2",
+```
+## volume Worker01 wordpress
+```ruby
+ubuntu@AnsibleWorker01:~$ docker inspect wordpress | grep -i "Source"
+                "Source": "/var/lib/docker/volumes/wordpressData/_data",
+```
+## volume Worker01 mysql
+```ruby
+ubuntu@AnsibleWorker01:~$ docker inspect mysql | grep -i "Source"
+                "Source": "/var/lib/docker/volumes/mysqlData/_data",
+```
+## Afficher les liens (links) conteneurs en cours 
+```ruby
+ubuntu@AnsibleWorker01:~$ docker inspect wordpress -f "{{ .HostConfig.Links }}"
+[/mysql:/wordpress/mysql_host]
+```
+
+## Répertorier toutes les liaisons de port
+```ruby
+ubuntu@AnsibleWorker01:~$ docker inspect --format='{{range $p, $conf := .NetworkSettings.Ports}} {{$p}} -> {{(index $conf 0).HostPort}} {{end}}' wordpress
+
+ 80/tcp -> 80
+```
+## Génère les entrées Name et Driver séparées par deux points (:) pour tous les volumes :
+```ruby
+ubuntu@AnsibleWorker01:~$ docker volume ls --format "{{.Name}}: {{.Driver}}"
+mysqlData: local
+wordpressData: local
+```
+
+
 ![Screenshot](assets\a.jpg)
 
 ![Screenshot](assets\b.jpg)
 
-![Screenshot](assets\c.jpg)s
+![Screenshot](assets\d.jpg)
+
+
+# galaxy
+
+## Docker 4.8/5 Score
+
+https://galaxy.ansible.com/infradev4/docker_role
+
+ansible-galaxy install infradev4.docker_role
+
+## Wordpress 5/5 Score
+
+https://galaxy.ansible.com/infradev4/rolewordpress
+
+
+ansible-galaxy install infradev4.rolewordpress
